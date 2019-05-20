@@ -1,4 +1,6 @@
 from flask import Flask
+from flask import render_template
+
 
 
 def create_app():
@@ -18,11 +20,11 @@ def create_app():
         """
         以此项目中的404.html作为此Web Server工作时的404错误页
         """
-        pass
+        return render_template('404.html'), 404
 
     # TODO: 完成接受 HTTP_URL 的 picture_reshape
     # TODO: 完成接受相对路径的 picture_reshape
-    @app.route('/pic', methods=['POST'])
+    @app.route('/pic', methods=['POST' ])
     def picture_reshape():
         """
         **请使用 PIL 进行本函数的编写**
@@ -42,8 +44,39 @@ def create_app():
             "base64_picture": <图片reshape后的base64编码: str>
         }
         """
-        import PIL
-        pass
+
+        import base64
+        import requests
+        import json
+        import hashlib
+        import os
+        from PIL import Image
+        from io import BytesIO
+        from flask import request
+        b64_url = str(request.data,encoding='UTF-8')
+        if 'http' not in b64_url:
+            filename = os.path.join(app.root_path, 'static', b64_url)
+            with open(filename, 'r') as f:
+                b64 = f.read()
+        else:
+            r = requests.get(url=b64_url)
+            b64 = r.text
+        img_data = base64.b64decode(b64)
+        img_data = BytesIO(img_data)
+        img = Image.open(img_data)
+        img = img.resize((100, 100),Image.ANTIALIAS)
+        output_buffer = BytesIO()
+        img.save(output_buffer, format='PNG')
+        byte_data = output_buffer.getvalue()
+        base64_str = base64.b64encode(byte_data)
+        md5_data = hashlib.md5()
+        md5_data.update(base64_str)
+        md5_str =md5_data.hexdigest()
+        res = json.dumps({"md5":md5_str,"base64_picture":str(base64_str,encoding="UTF-8")})
+        return str(res)
+
+
+
 
     # TODO: 爬取 996.icu Repo，获取企业名单
     @app.route('/996')
@@ -59,6 +92,52 @@ def create_app():
             "description": <description 描述>
         }, ...]
         """
-        pass
+        import requests
+        import re
+        import json
+        r = requests.get('https://github.com/996icu/996.ICU/tree/master/blacklist/README.md')
+        res_tr = r'<tr>(.*?)</tr>'
+        res_tr = r'<tr>(.*?)</tr>'
+        m_tr = re.findall(res_tr, r.text, re.S | re.M)
+        cont = []
+        for line in m_tr:
+            res_td = r'<td align="center">(.*?)</td>'
+            m_td = re.findall(res_td, line, re.S | re.M)
+            for j in m_td:
+                cont.append(j)
+        c = []
+        reg = re.compile('<[^>]*>')
+        for i in cont:
+            c.append(reg.sub('', i))
+        cont = c
+        print(cont)
+        flag = 0
+        for i in range(len(cont)):
+                if cont[i] == '盖章文件':
+                    s = i + 1
+                    break
+        # for i in range(len(cont)-1,-1, -1):
+        #     if cont[i] == '-->':
+        #         e = i
+        #         break
+        cont = cont[s:]
+        city = []
+        company = []
+        exp = []
+        des = []
+        for i in range(len(cont)):
+            if i % 5 == 0:
+                city.append(cont[i])
+            elif i % 5 == 1:
+                company.append(cont[i])
+            elif i % 5 == 2:
+                exp.append(cont[i])
+            elif i % 5 == 3:
+                des.append(cont[i])
+
+        res = []
+        for i in range(len(des)):
+            res.append(json.dumps({"city": city[i],"company": company[i],"exposure_time": exp[i],"description": des[i]}))
+        return str(res)
 
     return app
