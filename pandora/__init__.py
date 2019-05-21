@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import render_template
+from flask import jsonify
 
 
 
@@ -47,7 +48,6 @@ def create_app():
 
         import base64
         import requests
-        import json
         import hashlib
         import os
         from PIL import Image
@@ -72,7 +72,7 @@ def create_app():
         md5_data = hashlib.md5()
         md5_data.update(base64_str)
         md5_str =md5_data.hexdigest()
-        res = json.dumps({"md5":md5_str,"base64_picture":str(base64_str,encoding="UTF-8")})
+        res = jsonify({"md5":md5_str,"base64_picture":str(base64_str,encoding="UTF-8")})
         return res
 
 
@@ -94,7 +94,6 @@ def create_app():
         """
         import requests
         import re
-        import json
         r = requests.get('https://github.com/996icu/996.ICU/tree/master/blacklist/README.md')
         res_tr = r'<tr>(.*?)</tr>'
         m_tr = re.findall(res_tr, r.text, re.S | re.M)
@@ -135,7 +134,7 @@ def create_app():
         res = []
         for i in range(len(des)):
             res.append({"city": city[i],"company": company[i],"exposure_time": exp[i],"description": des[i]})
-        res = json.dumps(res)
+        res = jsonify(res)
         return res
 
     return app
