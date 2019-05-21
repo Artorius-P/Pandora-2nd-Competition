@@ -56,7 +56,7 @@ def create_app():
         b64_url = str(request.data,encoding='UTF-8')
         if 'http' not in b64_url:
             filename = os.path.join(app.root_path, 'static', b64_url)
-            with open(filename, 'r') as f:
+            with open('img.txt', 'r') as f:
                 b64 = f.read()
         else:
             r = requests.get(url=b64_url)
