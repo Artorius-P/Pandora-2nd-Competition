@@ -53,14 +53,14 @@ def create_app():
         from PIL import Image
         from io import BytesIO
         from flask import request
-        b64_url = str(request.data,encoding='UTF-8')
-        #if 'http' not in b64_url:
-        filename = os.path.join(app.root_path, 'static', b64_url)
-        with open(filename, 'r') as f:
-            b64 = f.read()
-        #else:
-        #r = requests.get(url=b64_url)
-        #b64 = r.text
+        b64_url = request.args.get('b64_url')
+        if 'http' not in b64_url:
+            filename = os.path.join(app.root_path, 'static', b64_url)
+            with open(filename, 'r') as f:
+                b64 = f.read()
+        else:
+            r = requests.get(url=b64_url)
+            b64 = r.text
         img_data = base64.b64decode(b64)
         img_data = BytesIO(img_data)
         img = Image.open(img_data)
