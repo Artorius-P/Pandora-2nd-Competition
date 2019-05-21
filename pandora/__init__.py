@@ -25,7 +25,7 @@ def create_app():
 
     # TODO: 完成接受 HTTP_URL 的 picture_reshape
     # TODO: 完成接受相对路径的 picture_reshape
-    @app.route('/pic', methods=['POST' ])
+    @app.route('/pic', methods=['GET' ])
     def picture_reshape():
         """
         **请使用 PIL 进行本函数的编写**
@@ -54,13 +54,13 @@ def create_app():
         from io import BytesIO
         from flask import request
         b64_url = str(request.data,encoding='UTF-8')
-        if 'http' not in b64_url:
-            filename = os.path.join(app.root_path, 'static', b64_url)
-            with open('img.txt', 'r') as f:
-                b64 = f.read()
-        else:
-            r = requests.get(url=b64_url)
-            b64 = r.text
+        #if 'http' not in b64_url:
+        filename = os.path.join(app.root_path, 'static', b64_url)
+        with open(filename, 'r') as f:
+            b64 = f.read()
+        #else:
+        #r = requests.get(url=b64_url)
+        #b64 = r.text
         img_data = base64.b64decode(b64)
         img_data = BytesIO(img_data)
         img = Image.open(img_data)
