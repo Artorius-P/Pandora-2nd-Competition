@@ -70,7 +70,7 @@ def create_app():
         byte_data = output_buffer.getvalue()
         base64_str = base64.b64encode(byte_data)
         md5_data = hashlib.md5()
-        md5_data.update(base64_str)
+        md5_data.update(byte_data)
         md5_str =md5_data.hexdigest()
         res = jsonify({"md5":md5_str,"base64_picture":str(base64_str,encoding="UTF-8")})
         return res
