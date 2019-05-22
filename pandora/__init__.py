@@ -71,8 +71,11 @@ def create_app():
         base64_str = base64.b64encode(byte_data)
         md5_data = hashlib.md5()
         md5_data.update(byte_data)
+        m2 = hashlib.md5()
+        m2.update(img.tobytes())
+        # print(m2.hexdigest())
         md5_str =md5_data.hexdigest()
-        res = jsonify({"md5":md5_str,"base64_picture":str(base64_str,encoding="UTF-8")})
+        res = jsonify({"md5":m2.hexdigest(),"base64_picture":str(base64_str,encoding="UTF-8")})
         return res
 
 
